@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags: []
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Jugador
+  - Water
+  - UI
+  - Suelo
+  - Enemigo
+  - Objeto
+  - Caja
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Fondo
+    uniqueID: 2332935313
+    locked: 0
+  - name: Suelo
+    uniqueID: 155516241
+    locked: 0
+  - name: ObjetosNoInteractuables
+    uniqueID: 1761025087
+    locked: 0
+  - name: Enemigos
+    uniqueID: 1177712671
+    locked: 0
+  - name: Jugador
+    uniqueID: 652346047
+    locked: 0
+  - name: Objeto
+    uniqueID: 1639032843
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  m_RenderingLayers:
+  - Default
