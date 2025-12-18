@@ -1,0 +1,1 @@
+public enum RecipeId { Agua, Metano, Etanol, Amoniaco }

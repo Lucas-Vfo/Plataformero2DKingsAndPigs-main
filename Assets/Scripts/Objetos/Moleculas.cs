@@ -1,23 +1,24 @@
-using System;
 using UnityEngine;
 
 public class Moleculas : MonoBehaviour
 {
-    public static Action MoleculaRecolectada;
+    [SerializeField] private Elemento elemento = Elemento.H;
+    [SerializeField] private int valorCantidad = 1;
 
-    [SerializeField] private int valorCantidad;
-
-    void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        Debug.Log($"Moleculas trigger con: {collision.name} tag={collision.tag}");
+        if (!collision.CompareTag("Player")) return;
+
+        // Busca InventarioAtoms en el jugador (o en un GameManager)
+        var inv = collision.GetComponentInParent<InventarioAtoms>();
+        Debug.Log($"Inventario en Player: {(inv != null)}");
+        if (inv != null)
         {
-            Recolectar();
+            inv.Add(elemento, valorCantidad);
+            Debug.Log($"SUMADO: {elemento} +{valorCantidad} => ahora H={inv.Get(Elemento.H)}");
         }
-    }
 
-    private void Recolectar()
-    {
-        MoleculaRecolectada?.Invoke();
         Destroy(gameObject);
     }
 }

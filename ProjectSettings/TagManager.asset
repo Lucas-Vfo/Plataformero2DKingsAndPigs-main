@@ -41,6 +41,9 @@ TagManager:
   - name: Fondo
     uniqueID: 2332935313
     locked: 0
+  - name: ProjectilPlayer
+    uniqueID: 1357036085
+    locked: 0
   - name: Suelo
     uniqueID: 155516241
     locked: 0

@@ -2,37 +2,40 @@ using UnityEngine;
 
 public class MenuCrafting : MonoBehaviour
 {
-    [SerializeField] private GameObject botonCrafting;
-
+    [SerializeField] private UIInventarioCrafting uiInventario;
     [SerializeField] private GameObject menuCrafting;
 
-    private bool juegoPausado = false;
+    private bool menuAbierto;
+
+    private void Awake()
+    {
+        // Asegura que parte cerrado
+        menuCrafting.SetActive(false);
+        menuAbierto = false;
+    }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            if (juegoPausado)
-            {
-                Reanudar();
-            }
-            else
-            {
-                Pausa();
-            }
+            if (menuAbierto) Cerrar();
+            else Abrir();
         }
     }
-    public void Pausa()
+
+    private void Abrir()
     {
-        juegoPausado = true;
-        botonCrafting.SetActive(false);
+        menuAbierto = true;
         menuCrafting.SetActive(true);
+
+        // Refresca textos apenas se abre (muestra lo recolectado “en background”)
+        if (uiInventario != null)
+            uiInventario.RefreshAll();
     }
 
-    public void Reanudar()
+    private void Cerrar()
     {
-        juegoPausado = false;
-        botonCrafting.SetActive(true);
+        menuAbierto = false;
         menuCrafting.SetActive(false);
     }
 }

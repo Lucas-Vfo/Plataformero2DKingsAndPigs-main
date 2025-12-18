@@ -4,12 +4,21 @@ using UnityEngine;
 [Serializable]
 public class Ataque
 {
-    public TipoDeAtaque tipoDeAtaque;
+    [Header("Identidad")]
+    public string id;                 // "Basic", "Agua", "Metano", etc.
     public string nombreAtaque;
-    public int cantidadDeDaño;
-    public Transform controladorAtaque;
-    public string stringAnimacion;
-    public float radioAtaque;
-    public Vector2 dimensionesCaja;
+
+    [Header("Combate")]
+    public int cantidadDeDaño = 1;
+    public Projectile proyectilPrefab;
+    public float velocidadProyectil = 12f;
+    public float vidaProyectil = 2f;
+
+    [Header("Animación")]
+    public string stringAnimacion;    // Trigger en Animator
+
+    [Header("Costos")]
+    public bool consumeCargas = false;
+    public int costoPorDisparo = 1;
 }
 

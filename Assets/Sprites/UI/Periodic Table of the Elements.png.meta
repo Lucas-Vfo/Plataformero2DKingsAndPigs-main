@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 93f915cc41ca505478a54ede592267eb
+guid: bc1d54bb74a2c4f4382b967fed2a3a9d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1063225092136831432
-    second: Bomb Off_0
+      213: 10401347114483854
+    second: Periodic Table of the Elements_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 64
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,23 +100,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bomb Off_0
+      name: Periodic Table of the Elements_0
       rect:
         serializedVersion: 2
-        x: 19
-        y: 16
-        width: 15
-        height: 18
+        x: 170
+        y: 882
+        width: 64
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 836f6e2796aae31f0800000000000000
-      internalID: -1063225092136831432
+      spriteID: e80c1f758f3f42000800000000000000
+      internalID: 10401347114483854
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Periodic Table of the Elements_1
+      rect:
+        serializedVersion: 2
+        x: 1054
+        y: 814
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e0274918e9972cd4aa46b9642b464d17
+      internalID: 757024648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Periodic Table of the Elements_2
+      rect:
+        serializedVersion: 2
+        x: 1122
+        y: 814
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bdf580ecdfac32241981adfa386dc38d
+      internalID: 1921147500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Periodic Table of the Elements_3
+      rect:
+        serializedVersion: 2
+        x: 1190
+        y: 814
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3f169b1c269257243885a12315c3eb8a
+      internalID: -2114800165
       vertices: []
       indices: 
       edges: []
@@ -125,7 +191,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: cadd3275744ef774ab464b5154f0b869
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +201,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bomb Off_0: -1063225092136831432
+      Periodic Table of the Elements_0: 10401347114483854
+      Periodic Table of the Elements_1: 757024648
+      Periodic Table of the Elements_2: 1921147500
+      Periodic Table of the Elements_3: -2114800165
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

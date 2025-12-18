@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using UnityEngine;
 
 public class MovimientoJugador : MonoBehaviour
@@ -14,18 +14,21 @@ public class MovimientoJugador : MonoBehaviour
     [SerializeField] private Collider2D colisionadorJugador;
 
     [Header("Movimiento Horizontal")]
-    [SerializeField] private float velocidadMovimiento;
+    [SerializeField] private float velocidadMovimiento = 6f;
     private float entradaHorizontal;
     private float entradaVertical;
 
     [Header("Salto")]
-    [SerializeField] private float fuerzaSalto;
+    [SerializeField] private float fuerzaSalto = 12f;
     [SerializeField] private Transform controladorSuelo;
-    [SerializeField] private Vector2 dimensionesCaja;
+    [SerializeField] private Vector2 dimensionesCaja = new Vector2(0.6f, 0.1f);
     [SerializeField] private LayerMask capasSalto;
-    [SerializeField] private bool sePuedeMoverEnElAire;
+    [SerializeField] private bool sePuedeMoverEnElAire = true;
+    [SerializeField] private float tiempoCaerPlataforma = 0.15f;
+
     private bool enSuelo;
     private bool entradaSalto;
+    private bool estaCayendoPorPlataforma;
 
     private void Update()
     {
@@ -42,19 +45,20 @@ public class MovimientoJugador : MonoBehaviour
 
     private void FixedUpdate()
     {
+        ActualizarEnSuelo();
         ControlarMovimientoHorizontal();
         ControlarSalto();
         entradaSalto = false;
     }
 
-    private void ControlarSalto()
+    private void ActualizarEnSuelo()
     {
         bool estabaEnElSuelo = enSuelo;
         enSuelo = false;
 
         Collider2D suelo = Physics2D.OverlapBox(controladorSuelo.position, dimensionesCaja, 0f, capasSalto);
 
-        if (suelo)
+        if (suelo != null)
         {
             enSuelo = true;
             if (!estabaEnElSuelo && rb2D.linearVelocity.y <= 0)
@@ -62,13 +66,17 @@ public class MovimientoJugador : MonoBehaviour
                 animator.SetTrigger(STRING_ATERRIZAR);
             }
         }
+    }
 
-        if (!entradaSalto) { return; }
-        if (!enSuelo) { return; }
+    private void ControlarSalto()
+    {
+        if (!entradaSalto) return;
+        if (!enSuelo) return;
 
         if (entradaVertical < 0)
         {
-            DesactivarPlataformas();
+            if (!estaCayendoPorPlataforma)
+                StartCoroutine(CaerPorPlataformasCoroutine());
         }
         else
         {
@@ -82,22 +90,36 @@ public class MovimientoJugador : MonoBehaviour
         rb2D.AddForce(new Vector2(0, fuerzaSalto), ForceMode2D.Impulse);
     }
 
-    private void DesactivarPlataformas()
+    private IEnumerator CaerPorPlataformasCoroutine()
     {
+        estaCayendoPorPlataforma = true;
+
         Collider2D[] objetosTocados = Physics2D.OverlapBoxAll(controladorSuelo.position, dimensionesCaja, 0f, capasSalto);
 
         foreach (Collider2D objeto in objetosTocados)
         {
-            if (objeto.GetComponent<PlatformEffector2D>() != null)
+            if (objeto != null && objeto.GetComponent<PlatformEffector2D>() != null)
             {
                 Physics2D.IgnoreCollision(colisionadorJugador, objeto, true);
             }
         }
+
+        yield return new WaitForSeconds(tiempoCaerPlataforma);
+
+        foreach (Collider2D objeto in objetosTocados)
+        {
+            if (objeto != null && objeto.GetComponent<PlatformEffector2D>() != null)
+            {
+                Physics2D.IgnoreCollision(colisionadorJugador, objeto, false);
+            }
+        }
+
+        estaCayendoPorPlataforma = false;
     }
 
     private void ControlarMovimientoHorizontal()
     {
-        if (!enSuelo && !sePuedeMoverEnElAire) { return; }
+        if (!enSuelo && !sePuedeMoverEnElAire) return;
 
         rb2D.linearVelocity = new Vector2(entradaHorizontal * velocidadMovimiento, rb2D.linearVelocity.y);
 
@@ -114,9 +136,9 @@ public class MovimientoJugador : MonoBehaviour
         transform.localScale = escala;
     }
 
-    private bool MirandoALaDerecha()
+    public bool MirandoALaDerecha()
     {
-        return transform.localScale.x == 1;
+        return transform.localScale.x > 0;
     }
 
     private void ControlarAnimaciones()
@@ -126,8 +148,9 @@ public class MovimientoJugador : MonoBehaviour
         animator.SetBool(STRING_EN_SUELO, enSuelo);
     }
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
+        if (controladorSuelo == null) return;
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(controladorSuelo.position, dimensionesCaja);
     }
