@@ -9,6 +9,8 @@ public class VidaJugador : MonoBehaviour
     [SerializeField] private int vidaMaxima;
     [SerializeField] private int vidaActual;
 
+    public event EventHandler MuerteJugador;
+
     private void Awake()
     {
         vidaActual = vidaMaxima;
@@ -26,6 +28,7 @@ public class VidaJugador : MonoBehaviour
 
         if (vidaActual <= 0)
         {
+            MuerteJugador.Invoke(this, EventArgs.Empty);
             DestruirJugador();
         }
     }
@@ -44,6 +47,15 @@ public class VidaJugador : MonoBehaviour
         vidaActual = vidaTemporal;
 
         JugadorSeCuro?.Invoke(vidaActual);
+    }
+
+    public bool TryCurar(int curacion)
+    {
+        if (curacion <= 0) return false;
+        if (vidaActual >= vidaMaxima) return false;
+
+        CurarVida(curacion);
+        return true;
     }
 
 

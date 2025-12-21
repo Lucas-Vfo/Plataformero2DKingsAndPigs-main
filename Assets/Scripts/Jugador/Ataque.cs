@@ -1,12 +1,17 @@
 using System;
 using UnityEngine;
 
+public enum ModoAtaque { Proyectil, Curacion }
+
 [Serializable]
 public class Ataque
 {
     [Header("Identidad")]
-    public string id;                 // "Basic", "Agua", "Metano", etc.
+    public string id;
     public string nombreAtaque;
+
+    [Header("Tipo / Elemento")]
+    public TipoDaño tipoDaño = TipoDaño.Basic;
 
     [Header("Combate")]
     public int cantidadDeDaño = 1;
@@ -20,5 +25,11 @@ public class Ataque
     [Header("Costos")]
     public bool consumeCargas = false;
     public int costoPorDisparo = 1;
+
+    [Header("Disparo")]
+    public ModoAtaque modo = ModoAtaque.Proyectil;
+
+    [Header("Curación")]
+    public int curarCorazones = 1;
 }
 

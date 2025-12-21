@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public enum BondDir { Right, Left, Up, Down };
+
 public class BondPoint : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] public BondDir dir;
@@ -29,7 +30,11 @@ public class BondPoint : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.clickCount == 2 && OccupantBond != null)
-            board?.BreakBond(OccupantBond);
+        if (eventData.clickCount != 2 || OccupantBond == null) return;
+
+        // Resolver el board ahora (ya estás en MoleculeRoot)
+        board ??= GetComponentInParent<CraftingBondBoardSingle>();
+
+        board?.BreakBond(OccupantBond);
     }
 }

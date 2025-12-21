@@ -29,8 +29,6 @@ public class InventarioAtoms : MonoBehaviour
         if (amount <= 0) return true;
         if (Get(e) < amount) return false;
 
-        // Ajusta esta línea según cómo almacenas tus cantidades:
-        // Si usas Dictionary<Elemento,int> cantidades:
         cantidades[e] -= amount;
 
         OnCantidadCambio?.Invoke(e, cantidades[e]);

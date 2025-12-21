@@ -7,11 +7,12 @@ public class Projectile : MonoBehaviour
     public struct Payload
     {
         public int damage;
+        public TipoDaño tipoDaño;
         public float speed;
         public float lifetime;
         public Vector2 direction;
         public Transform owner;
-        public LayerMask hitMask; // NUEVO: qué capas destruyen el proyectil
+        public LayerMask hitMask;
     }
 
     private Payload payload;
@@ -43,7 +44,7 @@ public class Projectile : MonoBehaviour
         // 2) Si golpea un IGolpeable, hace daño y se destruye
         if (other.TryGetComponent(out IGolpeable golpeable))
         {
-            golpeable.TomarDaño(payload.damage, payload.owner);
+            golpeable.TomarDaño(payload.damage, payload.tipoDaño, payload.owner);
             CombateJugador.NotifyHit();
             Destroy(gameObject);
             return;

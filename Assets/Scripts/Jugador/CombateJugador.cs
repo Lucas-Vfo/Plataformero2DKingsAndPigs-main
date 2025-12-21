@@ -13,7 +13,7 @@ public class CombateJugador : MonoBehaviour
     [SerializeField] private SkillManager skillManager;
 
     [Header("Ataques disponibles (fallback/básicos)")]
-    [SerializeField] private Ataque ataqueBasico; // dispara cuando no hay skill seleccionada/cargas
+    [SerializeField] private VidaJugador vidaJugador;
 
     [Header("Ataque")]
     [SerializeField] private float tiempoEntreAtaques = 0.2f;
@@ -34,6 +34,7 @@ public class CombateJugador : MonoBehaviour
         if (colliderJugador == null) colliderJugador = GetComponent<Collider2D>();
         if (movimientoJugador == null) movimientoJugador = GetComponent<MovimientoJugador>();
         if (skillManager == null) skillManager = GetComponent<SkillManager>();
+        if (vidaJugador == null) vidaJugador = GetComponent<VidaJugador>();
     }
     private Vector2 GetMouseWorld()
     {
@@ -74,13 +75,51 @@ public class CombateJugador : MonoBehaviour
         tiempoUltimoAtaque = Time.time;
 
         // 1) Elegir ataque actual: skill si existe y tiene cargas; si no, básico
-        Ataque ataqueActual = skillManager != null ? skillManager.GetAtaqueParaDisparar(ataqueBasico) : ataqueBasico;
+        AtaqueSO ataqueActual = (skillManager != null) ? skillManager.GetAtaqueSeleccionado() : null;
 
+        // Slot vacío
         if (ataqueActual == null)
         {
             //Debug.LogError("ataqueActual es NULL");
             return;
         }
+        Debug.Log($"AtaqueActual id={ataqueActual.id} stringAnimacion='{ataqueActual.stringAnimacion}'", this);
+
+        // CURACIÓN (Etanol)
+        if (ataqueActual.modo == ModoAtaque.Curacion)
+        {
+            if (vidaJugador == null) return;
+
+            // 1) Si no falta vida, no hacer nada (y no gastar carga)
+            bool curo = vidaJugador.TryCurar(ataqueActual.curarCorazones);
+            if (!curo) return;
+
+            // 2) Consumir 1 carga recién cuando se curó
+            if (skillManager != null && ataqueActual.consumeCargas)
+            {
+                int costo = Mathf.Max(1, ataqueActual.costoPorDisparo);
+                if (!skillManager.TryConsume(ataqueActual.id, costo))
+                    return;
+            }
+
+            // 3) Animación (opcional)
+            if (!string.IsNullOrEmpty(ataqueActual.stringAnimacion))
+            {
+                Debug.Log($"[Curación] SetTrigger: '{ataqueActual.stringAnimacion}'", this);
+                animator.SetTrigger(ataqueActual.stringAnimacion);
+            }
+
+            return;
+        }
+
+        // 2) Consumir cargas si corresponde
+        if (skillManager != null && ataqueActual.consumeCargas)
+        {
+            int costo = Mathf.Max(1, ataqueActual.costoPorDisparo);
+            if (!skillManager.TryConsume(ataqueActual.id, costo))
+                return;
+        }
+
         if (ataqueActual.proyectilPrefab == null)
         {
             //Debug.LogError("proyectilPrefab es NULL (revisa ataqueBasico en el Inspector del Jugador en escena)");
@@ -91,25 +130,19 @@ public class CombateJugador : MonoBehaviour
             //Debug.LogError("puntoDisparo es NULL (revisa referencia en Inspector)");
             return;
         }
-
         //Debug.Log($"DISPARANDO: {ataqueActual.id} desde {puntoDisparo.position}");
-
-        // 2) Consumir cargas si corresponde
-        if (skillManager != null && ataqueActual.consumeCargas)
-        {
-            if (!skillManager.TryConsume(ataqueActual.id, ataqueActual.costoPorDisparo))
-                ataqueActual = ataqueBasico; // fallback si se quedó sin cargas
-        }
 
         // 3) Animación
         if (!string.IsNullOrEmpty(ataqueActual.stringAnimacion))
+        {
+            Debug.Log($"[Proyectil] SetTrigger: '{ataqueActual.stringAnimacion}'", this);
             animator.SetTrigger(ataqueActual.stringAnimacion);
+        }
 
         // 4) Dirección según orientación del jugador
         Vector2 mouseWorld = GetMouseWorld();
         Vector2 dir = (mouseWorld - (Vector2)puntoDisparo.position).normalized;
 
-        // Evita NaN si el mouse está exactamente sobre el puntoDisparo
         if (dir.sqrMagnitude < 0.0001f)
             dir = Vector2.right;
 
@@ -119,6 +152,7 @@ public class CombateJugador : MonoBehaviour
         p.Init(new Projectile.Payload
         {
             damage = ataqueActual.cantidadDeDaño,
+            tipoDaño = ataqueActual.tipoDaño,
             speed = ataqueActual.velocidadProyectil,
             lifetime = ataqueActual.vidaProyectil,
             direction = dir,

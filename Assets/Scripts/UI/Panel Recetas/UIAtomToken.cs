@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -88,8 +89,18 @@ public class UIAtomToken : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         transform.SetParent(homeParent, false);
         rt.anchoredPosition = homePos;
-    }
 
+        rt.localScale = Vector3.one;
+    }
+    public void ReturnHomeToSlot(RectTransform slot)
+    {
+        if (slot == null) return;
+        board?.BreakAllBondsOf(this);
+
+        transform.SetParent(slot, false);
+        rt.anchoredPosition = Vector2.zero;
+        rt.localScale = Vector3.one;
+    }
     public void Setup(Elemento elemento, Sprite sprite)
     {
         Elemento = elemento;
@@ -113,34 +124,13 @@ public class UIAtomToken : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private Vector2 PointerLocal(PointerEventData e)
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            dragRoot, e.position, null, out Vector2 localPoint); // Overlay => cam null [web:521]
+        dragRoot, e.position, null, out Vector2 localPoint); // Overlay => cam null [web:521]
         return localPoint;
     }
 
     public void AddBond(AtomBond bond) => bonds.Add(bond);
 
     public void RemoveBond(AtomBond bond) => bonds.Remove(bond);
-
-    private void LogDrag(string tag, PointerEventData e)
-    {
-        if (canvas == null || dragRoot == null)
-        {
-            Debug.LogWarning($"{tag} canvas/dragRoot null", this);
-            return;
-        }
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            dragRoot, e.position, null, out Vector2 local);
-
-        Debug.LogWarning(
-            $"{tag} token={name} " +
-            $"screen={e.position} localInDragRoot={local} " +
-            $"anchored={rt.anchoredPosition} " +
-            $"dragRoot={dragRoot.name} dragRootScale={dragRoot.lossyScale} " +
-            $"canvas={canvas.name} scaleFactor={canvas.scaleFactor}",
-            this
-        );
-    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -149,17 +139,9 @@ public class UIAtomToken : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         cg.blocksRaycasts = false;
 
-        draggingGroup = false;
-        dragGroup = null;
-        groupOffset = null;
-
-        // Siempre draguear en el mismo espacio (dragRoot)
-        if (dragRoot != null)
-            transform.SetParent(dragRoot, false);
-
         bool wasOnBoard = (board != null && startParent == board.MoleculeRoot);
 
-        // Si estaba en la mesa y está unido => drag grupal
+        // 1) Si está en la mesa, calcula grupo ANTES de reparentar
         if (wasOnBoard && board != null)
         {
             var group = board.GetConnectedGroup(this);
@@ -168,25 +150,25 @@ public class UIAtomToken : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 draggingGroup = true;
                 dragGroup = group;
 
-                // Reparenta TODO el grupo al dragRoot (mismo espacio para todos)
+                // ahora sí reparenta todo al dragRoot (idealmente conservando world pos)
                 foreach (var t in dragGroup)
-                    t.transform.SetParent(dragRoot, false);
+                    t.transform.SetParent(dragRoot, true);
 
                 Vector2 pointer = PointerLocal(eventData);
-
                 groupOffset = new Dictionary<UIAtomToken, Vector2>();
                 foreach (var t in dragGroup)
                 {
                     var trt = (RectTransform)t.transform;
                     groupOffset[t] = trt.anchoredPosition - pointer;
                 }
-
                 return;
             }
-            LogDrag("BEGIN", eventData);
         }
 
-        // Drag normal: guarda offset puntero->token
+        // 2) Drag normal
+        if (dragRoot != null)
+            transform.SetParent(dragRoot, true);
+
         pointerOffset = rt.anchoredPosition - PointerLocal(eventData);
     }
 
@@ -209,15 +191,13 @@ public class UIAtomToken : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        LogDrag("END", eventData);
-
         cg.blocksRaycasts = true;
 
         // Si fue grupal, primero devuelve todo a la mesa (moleculeRoot) para que no quede nada colgando
         if (draggingGroup && dragGroup != null)
         {
             foreach (var t in dragGroup)
-                t.transform.SetParent(board.MoleculeRoot, false);
+                t.transform.SetParent(board.MoleculeRoot, true);
 
             draggingGroup = false;
             dragGroup = null;
@@ -237,4 +217,15 @@ public class UIAtomToken : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         transform.SetParent(startParent, false);
         rt.anchoredPosition = startPos;
     }
+
+    public bool HasHomeSlot() => homeParent != null;
+
+    public RectTransform GetHomeSlot() => homeParent;
+
+    public bool IsHomeSlot(RectTransform slot)
+    {
+        if (slot == null || homeParent == null) return false;
+        return ReferenceEquals(homeParent, slot);
+    }
+
 }

@@ -3,21 +3,29 @@ using UnityEngine;
 
 public class SkillManager : MonoBehaviour
 {
+    [Header("Basic permanente")]
+    [SerializeField] private string basicId = "Basic";
+    [SerializeField] private AtaqueSO ataqueBasico;
+
+    public event System.Action<string, int> OnChargesChanged;
+
     [Header("Ataques crafteables (por id)")]
-    [SerializeField] private List<Ataque> ataquesCrafteables = new();
+    [SerializeField] private List<AtaqueSO> ataquesCrafteables = new();
 
     [Header("Estado")]
-    [SerializeField] private string skillSeleccionadaId = ""; // "Agua", "Metano", etc.
+    [SerializeField] private string skillSeleccionadaId = "";
 
     private readonly Dictionary<string, int> cargas = new();
-    private readonly Dictionary<string, Ataque> ataquesPorId = new();
+    private readonly Dictionary<string, AtaqueSO> ataquesPorId = new();
 
     private void Awake()
     {
         ataquesPorId.Clear();
+
         foreach (var a in ataquesCrafteables)
         {
             if (a == null || string.IsNullOrEmpty(a.id)) continue;
+
             ataquesPorId[a.id] = a;
 
             if (!cargas.ContainsKey(a.id))
@@ -25,10 +33,7 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    public void SetSkillSeleccionada(string id)
-    {
-        skillSeleccionadaId = id;
-    }
+    public void SetSkillSeleccionada(string id) => skillSeleccionadaId = id;
 
     public void AddCharges(string id, int amount)
     {
@@ -36,6 +41,7 @@ public class SkillManager : MonoBehaviour
 
         if (!cargas.ContainsKey(id)) cargas[id] = 0;
         cargas[id] += amount;
+        OnChargesChanged?.Invoke(id, cargas[id]);
     }
 
     public bool TryConsume(string id, int amount)
@@ -45,18 +51,18 @@ public class SkillManager : MonoBehaviour
         if (actual < amount) return false;
 
         cargas[id] = actual - amount;
+        OnChargesChanged?.Invoke(id, cargas[id]);
         return true;
     }
 
-    public Ataque GetAtaqueParaDisparar(Ataque fallbackBasico)
+    public AtaqueSO GetAtaqueParaDisparar(AtaqueSO fallbackBasico)
     {
         if (string.IsNullOrEmpty(skillSeleccionadaId))
             return fallbackBasico;
 
-        if (!ataquesPorId.TryGetValue(skillSeleccionadaId, out Ataque ataque))
+        if (!ataquesPorId.TryGetValue(skillSeleccionadaId, out AtaqueSO ataque))
             return fallbackBasico;
 
-        // Si consume cargas, exige al menos 1 (o el costo que definas)
         if (ataque.consumeCargas)
         {
             int costo = Mathf.Max(1, ataque.costoPorDisparo);
@@ -69,4 +75,27 @@ public class SkillManager : MonoBehaviour
 
     public int GetCharges(string id) => cargas.TryGetValue(id, out int c) ? c : 0;
     public string GetSelectedId() => skillSeleccionadaId;
+
+    public AtaqueSO GetAtaqueSeleccionado()
+    {
+        if (string.IsNullOrEmpty(skillSeleccionadaId))
+            return null;
+
+        if (skillSeleccionadaId == basicId)
+            return ataqueBasico;
+
+        if (!ataquesPorId.TryGetValue(skillSeleccionadaId, out AtaqueSO ataque))
+            return null;
+
+        if (ataque.consumeCargas)
+        {
+            int costo = Mathf.Max(1, ataque.costoPorDisparo);
+            if (!cargas.TryGetValue(skillSeleccionadaId, out int c) || c < costo)
+                return null;
+        }
+
+        return ataque;
+    }
+
+    public string GetBasicId() => basicId;
 }

@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface IGolpeable
 {
-    public void TomarDaño(int cantidadDaño, Transform sender);
+    void TomarDaño(int cantidad, TipoDaño tipo, Transform sender);
 }
